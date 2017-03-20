@@ -13,7 +13,17 @@ IApplication::~IApplication()
 
 bool IApplication::Create()
 {
-	return true;
+	m_Window = MakeWindow(1024, 720, L"GAME-ENGINE");
+	if (m_Window)
+	{
+		::SetWindowLongPtr(m_Window, 0, (LONG)this);
+		return true;
+	}
+	else
+	{
+		return false;
+	}
+
 }
 
 bool IApplication::OnEvent(UINT iMessage, WPARAM wParam, LPARAM lParam)
