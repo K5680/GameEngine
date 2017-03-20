@@ -25,8 +25,21 @@ void IApplication::Run()
 {
 	// run the app
 	MSG msg;
-	bool gotMsg = false;
+	BOOL gotMsg = false;
+	HWND window = m_Window;
 
+	// first message
+	::PeekMessage(&msg, window, 0, 0, PM_NOREMOVE);
+
+	while (msg.message != WM_QUIT)
+	{
+		gotMsg = ::GetMessage(&msg, window, 0, 0);
+		if (gotMsg)
+		{
+			::TranslateMessage(&msg);
+			::DispatchMessage(&msg);
+		}
+	}
 }
 
 HWND IApplication::MakeWindow(int iWidth, int iHeight, const wchar_t* pTitle)
