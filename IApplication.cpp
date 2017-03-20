@@ -16,9 +16,17 @@ bool IApplication::Create()
 	return true;
 }
 
+bool IApplication::OnEvent(UINT iMessage, WPARAM wParam, LPARAM lParam)
+{
+	return true;
+}
+
 void IApplication::Run()
 {
-	
+	// run the app
+	MSG msg;
+	bool gotMsg = false;
+
 }
 
 HWND IApplication::MakeWindow(int iWidth, int iHeight, const wchar_t* pTitle)
@@ -32,12 +40,14 @@ HWND IApplication::MakeWindow(int iWidth, int iHeight, const wchar_t* pTitle)
 	memset(&wc, 0, sizeof(WNDCLASS));	// täytetään structi nollilla kokonaan
 	
 	wc.style = CS_HREDRAW | CS_VREDRAW;  // horiz & vert. redraw käytössä
-	wc.lpfnWndProc = NULL; // TODO: window procedure
+	wc.lpfnWndProc = WndProc;
 	wc.hInstance = hInst;
 	wc.hIcon = ::LoadIcon(hInst, 0);
 	wc.hCursor = ::LoadCursor(NULL, IDC_ARROW);
 	wc.hbrBackground = (HBRUSH)::GetStockObject(BLACK_BRUSH);
 	wc.lpszClassName = L"GAMEENGINE_WNDCLASS";
+	wc.cbClsExtra = sizeof(void*);	//void* = pointteri
+
 
 	if (!::RegisterClass(&wc))
 	{
@@ -63,4 +73,43 @@ HWND IApplication::MakeWindow(int iWidth, int iHeight, const wchar_t* pTitle)
 	::ShowWindow(window, SW_SHOWNORMAL);
 	
 	return window;
+}
+
+long WINAPI IApplication::WndProc(HWND hwnd, UINT iMessage, WPARAM wParam, LPARAM lParam)
+{
+	bool callDefwndProc = false;
+
+	IApplication* pApp = (IApplication*)::GetWindowLong(hwnd, 0);
+	if (pApp)
+	{
+		callDefwndProc = !pApp->OnEvent(iMessage, wParam, lParam);
+	}
+	else
+	{
+		switch (iMessage)
+		{
+		case WM_DESTROY:
+			::PostQuitMessage(0);
+			break;
+
+		case WM_CREATE:
+			::SetForegroundWindow(hwnd);
+			break;
+
+		default:
+			break;
+
+		}
+	}
+
+	if (callDefwndProc)
+	{
+		return (long)::DefWindowProc(hwnd, iMessage, wParam, lParam);
+	}
+	else
+	{
+		return 0;
+	}
+
+
 }
