@@ -3,12 +3,20 @@
 * entry point for a superduper game engine
 */
 
-#define WIN32_LEAN_AND_MEAN
-#include <windows.h>
+#include "IApplication.h"
 
 int APIENTRY WinMain(HINSTANCE hInst, HINSTANCE hPrevInst, LPSTR PcmdLine, int nCmdShow)
 {
-	::MessageBox(NULL, L"Hello Game Engine", L"HELLO", MB_OK);
+	IApplication* pApp = new IApplication;
+
+	if (!pApp -> Create())
+	{
+		::MessageBox(NULL, L"App start failed... sorry", L"Guru Meditation", MB_OK);
+		return 0;
+	}
+
+	pApp->Run();
+	delete pApp;
 	return 0;
 }
 
